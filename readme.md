@@ -19,7 +19,7 @@ The dataset with the images of the most common classes should be located in the 
 
 
 ## Utilisation de code existant
-Nous avons utilisé du code provenant de diverse TPs de réseau de neurone IFT780 de l'université de Sherbrooke<br>
+We used python code from the neural network course IFT780 at "université de Sherbrooke"<br>
 University of Sherbrooke
 Date:
 Authors: Mamadou Mountagha BAH & Pierre-Marc Jodoin
