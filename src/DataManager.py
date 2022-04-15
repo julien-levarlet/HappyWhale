@@ -6,69 +6,49 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 from torchvision import datasets
+import pandas as pd
+
+from WhaleDataset import WhaleDataset
 
 class DataManager(object):
     """
     class that yields dataloaders for train, test, and validation data
     """
 
-    def __init__(self, dataFolderPath ="dataset/common_cropped_train_imgs" , **kwargs):
+    def __init__(self, annotations_file : str , dataFolderPath : str, set : str, batch_size: int = 1,
+                test_percentage : float = 0.2, val_percentage : float = 0.2, **kwargs):
         """
         Input :
-        - dataFolder : folder where the images are located
+        - annotations_file : CSV file with 2 columns :  * 'image' witch contains image name (imgname.jpg)
+                                                        * 'individual_id' witch contains the id of the animal
+        - dataFolderPath : path to the folder containing all the images
+        - set : dataset searched, train, validation or test
 
         """
+        self.batch_size = batch_size
         self.dataFolderPath = dataFolderPath
-    
-    def get_data(self, percentage_test=0.2, percentage_val=0.2):
-        """
-        Returns training, test and validation set
-        
-        Input :
-        - percentage_test : percentage of images used for test. The rest is used for training and validation
-        - percentage_val : percentage of images used for validation. The rest is used for training only.
-        - num_dev : d'images à mettre dans l'ensemble dev
-        
-        Output :
-        - X_train, y_train : training set and target
-        - X_val, y_val: validation set and target
-        - X_test y_test: testing set and target
-        """
-        # Load data
-        X_train, y_train, X_test, y_test, label_names = self.loadData(self.dataFolderPath)
-    
-        # Séparer en ensembles d'entraînement, de validation, de test et de dev
-        mask = range(num_training, num_training + num_validation)
-        X_val = X_train[mask]
-        y_val = y_train[mask]
-        mask = range(num_training)
-        X_train = X_train[mask]
-        y_train = y_train[mask]
-        mask = range(num_test)
-        X_test = X_test[mask]
-        y_test = y_test[mask]
-        mask = np.random.choice(num_training, num_dev, replace=False)
-        X_dev = X_train[mask]
-        y_dev = y_train[mask]
-        mask = range(num_batch)
-        X_batch = X_train[mask]
-        y_batch = y_train[mask]
-        
-        X_train = X_train.transpose(0, 3, 1, 2)
-        X_test = X_test.transpose(0, 3, 1, 2)
-        X_val = X_val.transpose(0, 3, 1, 2)
-        X_dev = X_dev.transpose(0, 3, 1, 2)
 
-        return X_train, y_train, X_val, y_val, X_test, y_test, X_dev, y_dev, X_batch, y_batch, label_names 
+        df_labels = pd.read_csv(annotations_file)
 
-    def loadData(folder):
-        image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-                                          data_transforms[x])
-                  for x in ['train', 'val']}
+        # permutation
+        df_labels.sample(frac=1)
 
-        dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                                    shuffle=True, num_workers=4)
-                    for x in ['train', 'val']}
+        val_test_sep = int(df_labels.shape[0] * (1-test_percentage))
+        train_val_sep = int(df_labels.shape[0] * (1-test_percentage) * (1-val_percentage) )
+        
+
+        test_data = df_labels[:val_test_sep]
+        val_data = df_labels[train_val_sep:val_test_sep]
+        train_data = df_labels[train_val_sep:]
+
+        self.train_set = WhaleDataset(train_data)
+        self.val_set = WhaleDataset(val_data)
+        self.test_set = WhaleDataset(test_data)
+
+
+        self.train_loader = DataLoader(self.train_set, batch_size, **kwargs)
+        self.validation_loader = DataLoader(self.val_set, batch_size, **kwargs)
+        self.test_loader = DataLoader(self.test_set, batch_size, shuffle=True, **kwargs)
 
 
     def get_train_set(self):
@@ -80,73 +60,9 @@ class DataManager(object):
     def get_test_set(self):
         return self.test_loader
 
-    def get_classes(self):
-        return range(self.num_classes)
-
-    def get_input_shape(self):
-        return self.input_shape
-
     def get_batch_size(self):
         return self.batch_size
 
     def get_random_sample_from_test_set(self):
         indice = np.random.randint(0, len(self.test_set))
         return self.test_set[indice]
-
-
-
-
-
-
-def get_CIFAR10_data(num_training=49000, num_validation=1000, num_test=1000, num_dev=500, num_batch=200):
-    """
-    Charger la banque de données CIFAR-10, prétraiter les images et ajouter une dimension pour le biais.
-    
-    Input :
-    - num_training : nombre d'images à mettre dans l'ensemble d'entrainement
-    - num_validation : nombre d'images à mettre dans l'ensemble de validation
-    - num_test : nombre d'images à mettre dans l'ensemble de test
-    - num_dev : d'images à mettre dans l'ensemble dev
-    
-    Output :
-    - X_train, y_train : données et cibles d'entrainement
-    - X_val, y_val: données et cibles de validation
-    - X_test y_test: données et cibles de test 
-    - X_dev, y_dev: données et cibles dev
-    - X_batch, y_batch: batch de données et de cibles 
-    """
-    # Charger les données CIFAR-10
-    cifar10_dir = 'datasets/cifar-10-batches-py'
-    X_train, y_train, X_test, y_test, label_names = load_CIFAR10(cifar10_dir)
-  
-    # Séparer en ensembles d'entraînement, de validation, de test et de dev
-    mask = range(num_training, num_training + num_validation)
-    X_val = X_train[mask]
-    y_val = y_train[mask]
-    mask = range(num_training)
-    X_train = X_train[mask]
-    y_train = y_train[mask]
-    mask = range(num_test)
-    X_test = X_test[mask]
-    y_test = y_test[mask]
-    mask = np.random.choice(num_training, num_dev, replace=False)
-    X_dev = X_train[mask]
-    y_dev = y_train[mask]
-    mask = range(num_batch)
-    X_batch = X_train[mask]
-    y_batch = y_train[mask]
-    
-    X_train = X_train.transpose(0, 3, 1, 2)
-    X_test = X_test.transpose(0, 3, 1, 2)
-    X_val = X_val.transpose(0, 3, 1, 2)
-    X_dev = X_dev.transpose(0, 3, 1, 2)
-
-    return X_train, y_train, X_val, y_val, X_test, y_test, X_dev, y_dev, X_batch, y_batch, label_names 
-
-def preprocess_CIFAR10_data(X):
-
-    # Normalisation
-    X_mean = np.mean(X, axis = 0)
-    X_ = X - X_mean
-    
-    return X_
