@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import warnings
 
 
-class CNNTrainTestManager(object):
+class ModelTrainTestManager(object):
     """
     Class used the train and test the given model in the parameters
     """
