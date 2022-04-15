@@ -1,4 +1,12 @@
-# HappyWhale Challenge - Team WhalePlayed
+# HappyWhale Kaggle Challenge - Team WhalePlayed
+
+## Introduction
+
+We use fingerprints and facial recognition to identify people, but can we use similar approaches with marine mammals?
+
+You will find on this repository the work done by Gaétan Rey, Julien Levarlet and Timothée Wright, for the challenge https://www.kaggle.com/competitions/happy-whale-and-dolphin/overview 
+
+
 
 ## Installation :
 
