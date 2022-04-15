@@ -5,7 +5,6 @@
 
 import torch.nn as nn
 import torch 
-from models.CNNBaseModel import CNNBaseModel
 import warnings
 
 

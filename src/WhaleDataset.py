@@ -5,7 +5,7 @@ from torch.utils import data
 
 class WhaleDataset(data.Dataset):
     def __init__(self, dataset : data.Dataset,
-                transform=None, target_transform=None):
+                transform=None):
         '''
         Input :
         - annotations_file : CSV file with 2 columns :  * 'image' witch contains image name (imgname.jpg)
@@ -16,7 +16,6 @@ class WhaleDataset(data.Dataset):
 
         self.img_list = dataset
         self.transform = transform
-        self.target_transform = target_transform
 
     def __len__(self):
         return len(self.img_list)
@@ -24,6 +23,7 @@ class WhaleDataset(data.Dataset):
     def __getitem__(self, idx):
         row = self.img_list.iloc[[idx]]
         img_path = os.path.join(self.img_dir, row['image'])
+        # verifier read image
         image = read_image(img_path)
         label = row['individual_id']
         if self.transform:
