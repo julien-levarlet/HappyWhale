@@ -15,7 +15,7 @@ class DataManager(object):
     class that yields dataloaders for train, test, and validation data
     """
 
-    def __init__(self, annotations_file : str , dataFolderPath : str, set : str, batch_size: int = 1,
+    def __init__(self, annotations_file : str , dataFolderPath : str, batch_size: int = 1,
                 test_percentage : float = 0.2, val_percentage : float = 0.2, **kwargs):
         """
         Input :
