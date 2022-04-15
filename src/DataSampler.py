@@ -1,5 +1,9 @@
 # -*- coding:utf-8 -*-
 
+"""
+This code sample images from the global database to extract somes classes from experiment purposes
+"""
+
 import pandas as pd
 from shutil import copyfile
 import os
