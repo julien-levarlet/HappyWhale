@@ -6,7 +6,7 @@
 import torch.nn as nn
 import torch
 import warnings
-from ArcFace import ArcMarginProduct
+from Models.ArcFace import ArcMarginProduct
 
 
 class ResNet(nn.Module):
@@ -15,7 +15,7 @@ class ResNet(nn.Module):
     Achitecture ResNet
     """
 
-    def __init__(self, num_classes=21, in_channels=1, depth=4, option="small", size=256):
+    def __init__(self, num_classes=21, in_channels=1, depth=4, option="small", size=256, use_arcface=True):
         """
         initialisation des couches :
         num_classes = nombre de classe en sortie
@@ -94,12 +94,15 @@ class ResNet(nn.Module):
             "ls_eps": 0.0,
             "easy_margin": False
         }
-        self.fc = ArcMarginProduct(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), 
+        if use_arcface:
+            self.fc = ArcMarginProduct(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), 
                                    out_features=num_classes,
                                    s=arcFace_config["s"], 
                                    m=arcFace_config["m"], 
                                    easy_margin=arcFace_config["ls_eps"], 
                                    ls_eps=arcFace_config["ls_eps"])
+        else:
+            self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
         
         self.softmax = nn.Softmax(dim=1)
         self.relu=nn.ReLU(inplace=True)
