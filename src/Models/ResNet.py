@@ -89,8 +89,8 @@ class ResNet(nn.Module):
 
         # ArcFace Hyperparameters
         arcFace_config = {
-            "s": 30.0,
-            "m": 0.50,
+            "s": 30.0,  # scale (The scale parameter changes the shape of the logits. The higher the scale, the more peaky the logits vector becomes.)
+            "m": 0.50,  # margin (margin results in a bigger separation of classes in your training set)
             "ls_eps": 0.0,
             "easy_margin": False
         }

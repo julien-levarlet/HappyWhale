@@ -1,3 +1,12 @@
+'''
+Made by :
+    Debarshi Chanda
+    https://www.kaggle.com/code/debarshichanda/pytorch-arcface-gem-pooling-starter/notebook
+Inspired from :
+    Landmark2019-1st-and-3rd-Place-Solution
+    https://github.com/lyakaap/Landmark2019-1st-and-3rd-Place-Solution/blob/master/src/modeling/metric_learning.py
+'''
+
 import torch.nn as nn
 import torch
 import math
