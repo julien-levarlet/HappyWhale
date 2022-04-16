@@ -24,7 +24,8 @@ class ResNet(nn.Module):
         size = taille des images pour le calcul de la couche dense apres le flatten
         """
         super(ResNet, self).__init__()
-
+        self.size=size
+        self.depth=depth
         self.num_classes = num_classes
         self.in_channels = in_channels
         self.out_channels = num_classes
@@ -37,7 +38,7 @@ class ResNet(nn.Module):
 
         #première couche 
         self.first_layer=nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=64, kernel_size=7, stride=2),
+            nn.Conv2d(in_channels=in_channels, out_channels=64, kernel_size=7, stride=2, padding=4),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
             nn.Conv2d(in_channels=64, out_channels=256, kernel_size=1, stride=1, padding="same"),
@@ -83,7 +84,8 @@ class ResNet(nn.Module):
         self.avgpool=nn.AvgPool2d(kernel_size=2, padding=0)
 
         #in_features=size*size*2**(len(depth)+2)
-        self.fc = nn.Linear(in_features=size*size*2**(depth+2), out_features=num_classes)
+        self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
+        
         self.softmax = nn.Softmax(dim=1)
         self.relu=nn.ReLU(inplace=True)
 
@@ -95,7 +97,6 @@ class ResNet(nn.Module):
             x: Tensor
         """
         bottleneck_output=0
-
         out=self.first_layer(x)
         out=self.maxpool(out)
 

@@ -1,5 +1,11 @@
 # -*- coding:utf-8 -*-
 
+'''
+Class used for data Augmentation.
+Made by Gaetan Rey.
+'''
+
+
 """
 Remarque importante sur la manipulation des images avec scikit-image et cv2:
 Pour passer d'une image importer avec skimage (scikit-image) à une image importer avec CV2
