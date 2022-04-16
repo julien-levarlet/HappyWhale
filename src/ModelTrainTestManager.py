@@ -158,7 +158,7 @@ class ModelTrainTestManager(object):
                                          val_data[1].to(self.device, dtype=torch.long)
 
                 # forward pass
-                val_outputs = self.model(val_inputs)
+                val_outputs = self.model(val_inputs,val_labels)
 
                 # compute loss function
                 loss = self.loss_fn(val_outputs, val_labels)
@@ -200,7 +200,7 @@ class ModelTrainTestManager(object):
             for data in test_loader:
                 test_inputs, test_labels = data[0].to(self.device, dtype=torch.float), \
                                            data[1].to(self.device, dtype=torch.long)
-                test_outputs = self.model(test_inputs)
+                test_outputs = self.model(test_inputs,test_labels)
                 assert torch.where(test_labels)
                 accuracies += self.accuracy(test_outputs, test_labels)
         print("Accuracy on the test set: {:05.3f} %".format(
