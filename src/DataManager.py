@@ -3,6 +3,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 from src.WhaleDataset import WhaleDataset
 from src.transformation import Transformation
@@ -39,7 +40,8 @@ class DataManager(object):
         # reads data
         df_labels = pd.read_csv(annotations_file)
         # labels need to be categorical 
-        df_labels["individual_id"] = df_labels["individual_id"].astype('category').cat.codes
+        encoder = LabelEncoder()
+        df_labels['individual_id'] = encoder.fit_transform(df_labels['individual_id'])
 
         # permutation
         df_labels.sample(frac=1)
@@ -63,9 +65,9 @@ class DataManager(object):
         self.val_set = WhaleDataset(df_val, dataFolderPath, transform_proba=transform_proba, img_size=img_size, transform=tranform)
         self.test_set = WhaleDataset(df_test, dataFolderPath,transform_proba=transform_proba, img_size=img_size, transform=tranform)
 
-        self.train_loader = DataLoader(self.train_set, batch_size, shuffle=True, **kwargs)
-        self.validation_loader = DataLoader(self.val_set, batch_size, shuffle=True, **kwargs)
-        self.test_loader = DataLoader(self.test_set, batch_size, shuffle=True, **kwargs)
+        self.train_loader = DataLoader(self.train_set, batch_size, num_workers=4, shuffle=True, **kwargs)
+        self.validation_loader = DataLoader(self.val_set, batch_size, num_workers=4, shuffle=True, **kwargs)
+        self.test_loader = DataLoader(self.test_set, batch_size, num_workers=4, shuffle=True, **kwargs)
 
 
     def get_train_set(self):
