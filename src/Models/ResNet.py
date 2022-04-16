@@ -6,6 +6,7 @@
 import torch.nn as nn
 import torch
 import warnings
+from ArcFace import ArcMarginProduct
 
 
 class ResNet(nn.Module):
@@ -84,7 +85,21 @@ class ResNet(nn.Module):
         self.avgpool=nn.AvgPool2d(kernel_size=2, padding=0)
 
         #in_features=size*size*2**(len(depth)+2)
-        self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
+        #self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
+
+        # ArcFace Hyperparameters
+        arcFace_config = {
+            "s": 30.0,  # scale (The scale parameter changes the shape of the logits. The higher the scale, the more peaky the logits vector becomes.)
+            "m": 0.50,  # margin (margin results in a bigger separation of classes in your training set)
+            "ls_eps": 0.0,
+            "easy_margin": False
+        }
+        self.fc = ArcMarginProduct(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), 
+                                   out_features=num_classes,
+                                   s=arcFace_config["s"], 
+                                   m=arcFace_config["m"], 
+                                   easy_margin=arcFace_config["ls_eps"], 
+                                   ls_eps=arcFace_config["ls_eps"])
         
         self.softmax = nn.Softmax(dim=1)
         self.relu=nn.ReLU(inplace=True)
