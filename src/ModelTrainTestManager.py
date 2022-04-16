@@ -94,8 +94,8 @@ class ModelTrainTestManager(object):
                 for i, data in enumerate(train_loader, 0):
                     # transfer tensors to selected device
                     train_inputs, train_labels = \
-                        data[0].to(self.device, dtype=torch.float), \
-                        data[1].to(self.device, dtype=torch.long)
+                        data[0].to(self.device, dtype=torch.float),\
+                        data[1]
                     # zero the parameter gradients
                     self.optimizer.zero_grad()
 

@@ -29,6 +29,7 @@ class DataManager(object):
         self.dataFolderPath = dataFolderPath
 
         df_labels = pd.read_csv(annotations_file)
+        print(df_labels.head())
 
         # permutation
         df_labels.sample(frac=1)
@@ -41,9 +42,9 @@ class DataManager(object):
         val_data = df_labels[train_val_sep:val_test_sep]
         train_data = df_labels[train_val_sep:]
 
-        self.train_set = WhaleDataset(train_data)
-        self.val_set = WhaleDataset(val_data)
-        self.test_set = WhaleDataset(test_data)
+        self.train_set = WhaleDataset(train_data, dataFolderPath)
+        self.val_set = WhaleDataset(val_data, dataFolderPath)
+        self.test_set = WhaleDataset(test_data, dataFolderPath)
 
 
         self.train_loader = DataLoader(self.train_set, batch_size, **kwargs)
