@@ -17,7 +17,7 @@ class DataManager(object):
                 batch_size: int = 1,
                 test_percentage : float = 0.2, 
                 val_percentage : float = 0.2, 
-                transform_proba=0.5,
+                transform_proba=0.8,
                 img_size=256,
                 verbose=False, 
                 **kwargs):
