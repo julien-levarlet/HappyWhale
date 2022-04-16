@@ -158,7 +158,7 @@ class ModelTrainTestManager(object):
                                          val_data[1].to(self.device, dtype=torch.long)
 
                 # forward pass
-                val_outputs = self.model(val_inputs)
+                val_outputs = self.model(val_inputs, val_labels)
 
                 # compute loss function
                 loss = self.loss_fn(val_outputs, val_labels)
