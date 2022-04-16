@@ -28,6 +28,22 @@ def image_resize(img: np.ndarray, dim: int, pad: bool=False)->np.ndarray:
         img = np.pad(img, pad_size)
     return cv2.resize(img, (dim,dim))
 
+def crop_image(img: np.ndarray, x_min:int, y_min:int, x_max:int, y_max:int):
+    """Crop an image based on bounding box coordinate in pixels
+    (0,0) correspond to the top left hand corner 
+
+    Args:
+        img (np.ndarray): the image to crop
+        x_min (int): min abscissa of the bounding box
+        y_min (int): min ordinate
+        x_max (int): max abscissa
+        y_max (int): max ordinate
+
+    Returns:
+        np.ndarray: the crop of the image
+    """
+    return img[x_min:x_max, y_min:y_max]
+
 def accuracy(input: torch.Tensor, target: torch.Tensor)-> float:
     """Compute the accuracy of the model
 
