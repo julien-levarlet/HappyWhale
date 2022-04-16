@@ -4,9 +4,7 @@
 # cette architecture resnet est notre propre implementation du papier de recherche suivant: https://towardsdatascience.com/review-resnet-winner-of-ilsvrc-2015-image-classification-localization-detection-e39402bfa5d8
 
 import torch.nn as nn
-import torch
-import warnings
-from Models.ArcFace import ArcMarginProduct
+from src.Models.ArcFace import ArcMarginProduct
 
 
 class ResNet(nn.Module):

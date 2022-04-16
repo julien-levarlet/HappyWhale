@@ -9,13 +9,14 @@ Other: Suggestions are welcome
 
 import torch
 import numpy as np
-from DataManager import DataManager
 from typing import Callable, Type
 from tqdm import tqdm
 from os.path import join
 import matplotlib.pyplot as plt
 import warnings
-from utils import accuracy
+
+from src.utils import accuracy
+from src.DataManager import DataManager
 
 
 class ModelTrainTestManager(object):
