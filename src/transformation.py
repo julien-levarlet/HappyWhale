@@ -35,7 +35,7 @@ class Transformation():
     différent type de data.
     """
 
-    def __init__(self,number_of_generation=10,transformation_list=[],angle=(-15,15),start_pose=2,translation_range=(-50,50),shear_range=(-0.1,0.1),contrast_range=(0.8,1.3),brightness_range=(0.9,1.2),sharpness_range=(0.85,1.1), color_range=(0.85,1.2), image_size=(512,512)):
+    def __init__(self,number_of_generation=1,transformation_list=[],angle=(-5,5),start_pose=1,translation_range=(-20,20),shear_range=(-0.1,0.1),contrast_range=(0.8,1.3),brightness_range=(0.9,1.2),sharpness_range=(0.85,1.1), color_range=(0.85,1.2)):
         
         """
         Les arguments sont à renseigner pour utiliser la fonction generation aléatoire sinon il n'est pas utile de les renseigner,
@@ -53,10 +53,10 @@ class Transformation():
             -color_rante = idem pour la saturation des couleurs
             -size = taille des images à modifier
         """
-        self.size=image_size
+        
         self.number_of_generation=number_of_generation
         if(transformation_list==[]):
-            self.transformation_list = [self.rotate,self.translate,self.flip,self.shear,self.noise2,self.contrast,self.brightness,self.sharpness,self.color]
+            self.transformation_list = [self.rotate,self.translate,self.shear,self.noise2,self.contrast,self.brightness,self.sharpness,self.color]
         else:
             self.transformation_list = transformation_list
         self.angle = angle
@@ -99,12 +99,12 @@ class Transformation():
         
         #corps de la fonction
         rotate_image = imutils.rotate_bound(image, angle)
-        image_finale=cv2.resize(rotate_image,self.size)
+        image_finale=cv2.resize(rotate_image,image.shape)
     
         #si la prédiction est passé en argument 
         if(prediction.shape!=np.zeros(shape=1).shape):
             rotate_prediction = imutils.rotate_bound(prediction, angle)
-            prediction_finale=cv2.resize(rotate_prediction,self.size)
+            prediction_finale=cv2.resize(rotate_prediction,image.shape)
             return image_finale,prediction_finale
 
         return image_finale
@@ -126,12 +126,12 @@ class Transformation():
 
         #corps de la fonction
         translate_image = imutils.translate(image, horizontal_translation, vertical_translation)
-        image_finale=cv2.resize(translate_image,self.size)
+        image_finale=cv2.resize(translate_image,image.shape)
 
         #si la prédiction est passé en argument 
         if(prediction.shape!=np.zeros(shape=1).shape):
             translate_prediction = imutils.translate(prediction, horizontal_translation, vertical_translation)
-            prediction_finale=cv2.resize(translate_prediction,self.size)
+            prediction_finale=cv2.resize(translate_prediction,image.shape)
             return image_finale,prediction_finale
 
         return image_finale
