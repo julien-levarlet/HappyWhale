@@ -40,5 +40,5 @@ class WhaleDataset(data.Dataset):
         if self.transform is not None and self.proba < random.random():
             image = self.transform(image)[1]
         image = torchvision.transforms.functional.to_tensor(image_resize(image, self.img_size))
-        label = torch.tensor(label)
+        label = torch.tensor(label,dtype=torch.long)
         return image, label

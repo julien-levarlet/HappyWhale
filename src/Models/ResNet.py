@@ -83,7 +83,7 @@ class ResNet(nn.Module):
         self.avgpool=nn.AvgPool2d(kernel_size=2, padding=0)
 
         #in_features=size*size*2**(len(depth)+2)
-        #self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
+        self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
 
         # ArcFace Hyperparameters
         arcFace_config = {
