@@ -33,6 +33,8 @@ class WhaleDataset(data.Dataset):
 
         img_path = os.path.join(self.img_dir, img)
         image = cv2.imread(img_path)
+        if image == None:
+            raise FileNotFoundError("The image does not exists")
 
         if self.transform and self.p < Random.random():
             image = self.transform(image)
