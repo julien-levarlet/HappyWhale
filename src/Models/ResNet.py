@@ -4,16 +4,15 @@
 # cette architecture resnet est notre propre implementation du papier de recherche suivant: https://towardsdatascience.com/review-resnet-winner-of-ilsvrc-2015-image-classification-localization-detection-e39402bfa5d8
 
 import torch.nn as nn
-from src.Models.ArcFace import ArcMarginProduct
 
 
 class ResNet(nn.Module):
 
     """
-    Achitecture ResNet
+    ResNet Achitecture 
     """
 
-    def __init__(self, num_classes=21, in_channels=1, depth=4, option="small", size=256, use_arcface=True):
+    def __init__(self, num_classes=21, in_channels=1, depth=4, option="small", size=256):
         """
         initialisation des couches :
         num_classes = nombre de classe en sortie
@@ -84,29 +83,11 @@ class ResNet(nn.Module):
 
         #in_features=size*size*2**(len(depth)+2)
         self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
-
-        # ArcFace Hyperparameters
-        arcFace_config = {
-            "s": 30.0,  # scale (The scale parameter changes the shape of the logits. The higher the scale, the more peaky the logits vector becomes.)
-            "m": 0.50,  # margin (margin results in a bigger separation of classes in your training set)
-            "ls_eps": 0.0,
-            "easy_margin": False
-        }
-        if use_arcface:
-            self.fc = ArcMarginProduct(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), 
-                                   out_features=num_classes,
-                                   s=arcFace_config["s"], 
-                                   m=arcFace_config["m"], 
-                                   easy_margin=arcFace_config["ls_eps"], 
-                                   ls_eps=arcFace_config["ls_eps"])
-        else:
-            self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
         
         self.softmax = nn.Softmax(dim=1)
-        self.relu=nn.ReLU(inplace=True)
 
 
-    def forward(self, x):
+    def forward(self, x, y):
         """
         Forward pass of the model
         Args:

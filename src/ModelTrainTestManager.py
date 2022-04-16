@@ -109,7 +109,7 @@ class ModelTrainTestManager(object):
                     self.optimizer.zero_grad()
 
                     # forward pass
-                    train_outputs = self.model(train_inputs)
+                    train_outputs = self.model(train_inputs, train_labels)
                     # computes loss using loss function loss_fn
                     loss = self.loss_fn(train_outputs, train_labels)
                     # for croosentropy loss softmax and argmax not needed :
