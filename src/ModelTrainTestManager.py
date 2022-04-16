@@ -1,12 +1,22 @@
+"""
+File adapted from :
+University of Sherbrooke
+Date:
+Authors: Mamadou Mountagha BAH & Pierre-Marc Jodoin
+License:
+Other: Suggestions are welcome
+"""
+
 import torch
 import numpy as np
-from DataManager import DataManager
 from typing import Callable, Type
 from tqdm import tqdm
 from os.path import join
 import matplotlib.pyplot as plt
 import warnings
-from utils import accuracy
+
+from src.utils import accuracy
+from src.DataManager import DataManager
 
 
 class ModelTrainTestManager(object):
@@ -92,8 +102,8 @@ class ModelTrainTestManager(object):
                 train_accuracies = []
                 for i, data in enumerate(train_loader, 0):
                     # transfer tensors to selected device
-                    train_inputs, train_labels = data[0].to(self.device), \
-                                                 data[1].to(self.device)
+                    train_inputs, train_labels = data[0].to(self.device, dtype=torch.float), \
+                                                 data[1].to(self.device, dtype=torch.long)
                                                  
                     # zero the parameter gradients
                     self.optimizer.zero_grad()
@@ -144,8 +154,8 @@ class ModelTrainTestManager(object):
         with torch.no_grad():
             for j, val_data in enumerate(val_loader, 0):
                 # transfer tensors to the selected device
-                val_inputs, val_labels = val_data[0].to(self.device), \
-                    val_data[1].to(self.device)
+                val_inputs, val_labels = val_data[0].to(self.device, dtype=torch.float), \
+                                         val_data[1].to(self.device, dtype=torch.long)
 
                 # forward pass
                 val_outputs = self.model(val_inputs)
@@ -188,8 +198,8 @@ class ModelTrainTestManager(object):
         accuracies = 0
         with torch.no_grad():
             for data in test_loader:
-                test_inputs, test_labels = data[0].to(self.device),\
-                                           data[1].to(self.device)
+                test_inputs, test_labels = data[0].to(self.device, dtype=torch.float), \
+                                           data[1].to(self.device, dtype=torch.long)
                 test_outputs = self.model(test_inputs)
                 assert torch.where(test_labels)
                 accuracies += self.accuracy(test_outputs, test_labels)

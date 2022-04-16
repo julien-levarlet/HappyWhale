@@ -1,15 +1,10 @@
 # -*- coding:utf-8 -*-
-
-import os
-import shutil
-import torch
 import numpy as np
-from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
-from torchvision import datasets
+from torch.utils.data import DataLoader
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from WhaleDataset import WhaleDataset
+from src.WhaleDataset import WhaleDataset
 
 class DataManager(object):
     """
