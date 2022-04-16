@@ -7,6 +7,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 from torchvision import datasets
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from WhaleDataset import WhaleDataset
 
@@ -33,21 +34,13 @@ class DataManager(object):
         # labels need to be categorical 
         df_labels["individual_id"] = df_labels["individual_id"].astype('category').cat.codes
 
-        print(df_labels.head())
+        df_train_val, df_test = train_test_split(df_labels, test_size=test_percentage, stratify=df_labels["individual_id"])
 
-        # permutation
-        df_labels.sample(frac=1)
+        df_train, df_val = train_test_split(df_train_val, test_size=val_percentage, stratify=df_train_val["individual_id"])
 
-        val_test_sep = int(df_labels.shape[0] * (1-test_percentage))
-        train_val_sep = int(df_labels.shape[0] * (1-test_percentage) * (1-val_percentage) )
-
-        test_data = df_labels[:val_test_sep]
-        val_data = df_labels[train_val_sep:val_test_sep]
-        train_data = df_labels[train_val_sep:]
-
-        self.train_set = WhaleDataset(train_data, dataFolderPath)
-        self.val_set = WhaleDataset(val_data, dataFolderPath)
-        self.test_set = WhaleDataset(test_data, dataFolderPath)
+        self.train_set = WhaleDataset(df_train, dataFolderPath)
+        self.val_set = WhaleDataset(df_val, dataFolderPath)
+        self.test_set = WhaleDataset(df_test, dataFolderPath)
 
         self.train_loader = DataLoader(self.train_set, batch_size, shuffle=True, **kwargs)
         self.validation_loader = DataLoader(self.val_set, batch_size, shuffle=True, **kwargs)
