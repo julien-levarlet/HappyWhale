@@ -33,12 +33,12 @@ class WhaleDataset(data.Dataset):
         label = self.img_df.iat[idx,1]
 
         img_path = os.path.join(self.img_dir, img)
-        image = cv2.imread(img_path)
+        image = image_resize(cv2.imread(img_path), self.img_size)
         if image is None:
             raise FileNotFoundError("The image does not exists: image name=",img_path)
 
         if self.transform is not None and self.proba < random.random():
             image = self.transform(image)[1]
-        image = torchvision.transforms.functional.to_tensor(image_resize(image, self.img_size))
+        image = torchvision.transforms.functional.to_tensor(image)
         label = torch.tensor(label,dtype=torch.long)
         return image, label

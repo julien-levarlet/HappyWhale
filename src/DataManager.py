@@ -56,7 +56,7 @@ class DataManager(object):
             print("Size of train set :", len(df_train))
 
         # data augmentation class
-        tranform = Transformation().apply_transformations
+        tranform = Transformation(image_size=(img_size, img_size)).apply_transformations
 
         # creates Datasets and DataLoaders
         self.train_set = WhaleDataset(df_train, dataFolderPath, transform_proba=transform_proba, img_size=img_size, transform=tranform)
