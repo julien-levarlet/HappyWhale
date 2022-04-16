@@ -30,23 +30,21 @@ class DataManager(object):
         self.dataFolderPath = dataFolderPath
 
         df_labels = pd.read_csv(annotations_file)
+        print(df_labels.head())
 
         # permutation
         df_labels.sample(frac=1)
 
         val_test_sep = int(df_labels.shape[0] * (1-test_percentage))
         train_val_sep = int(df_labels.shape[0] * (1-test_percentage) * (1-val_percentage) )
-        
 
         test_data = df_labels[:val_test_sep]
         val_data = df_labels[train_val_sep:val_test_sep]
         train_data = df_labels[train_val_sep:]
 
-        # get torch dataset
-        self.train_set = WhaleDataset(train_data)
-        self.val_set = WhaleDataset(val_data)
-        self.test_set = WhaleDataset(test_data)
-
+        self.train_set = WhaleDataset(train_data, dataFolderPath)
+        self.val_set = WhaleDataset(val_data, dataFolderPath)
+        self.test_set = WhaleDataset(test_data, dataFolderPath)
 
         self.train_loader = DataLoader(self.train_set, batch_size, **kwargs)
         self.validation_loader = DataLoader(self.val_set, batch_size, **kwargs)
