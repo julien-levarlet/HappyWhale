@@ -55,5 +55,5 @@ def accuracy(input: torch.Tensor, target: torch.Tensor)-> float:
         torch.Tensor: tensor containing the accuracy
     """
     preds = torch.argmax(input, dim=-1)
-    return torch.sum(preds == target) / len(target)
+    return torch.sum(preds == target) / target.size(0)
 

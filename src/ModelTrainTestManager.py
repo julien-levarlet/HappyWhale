@@ -92,8 +92,8 @@ class ModelTrainTestManager(object):
                 train_accuracies = []
                 for i, data in enumerate(train_loader, 0):
                     # transfer tensors to selected device
-                    train_inputs, train_labels = data[0].to(self.device, dtype=torch.float), \
-                                                 data[1].to(self.device, dtype=torch.long)
+                    train_inputs, train_labels = data[0].to(self.device), \
+                                                 data[1].to(self.device)
                                                  
                     # zero the parameter gradients
                     self.optimizer.zero_grad()
@@ -144,9 +144,8 @@ class ModelTrainTestManager(object):
         with torch.no_grad():
             for j, val_data in enumerate(val_loader, 0):
                 # transfer tensors to the selected device
-                val_inputs, val_labels = val_data[0].to(
-                    self.device, dtype=torch.float), \
-                    val_data[1].to(self.device, dtype=torch.long)
+                val_inputs, val_labels = val_data[0].to(self.device), \
+                    val_data[1].to(self.device)
 
                 # forward pass
                 val_outputs = self.model(val_inputs)
@@ -189,9 +188,8 @@ class ModelTrainTestManager(object):
         accuracies = 0
         with torch.no_grad():
             for data in test_loader:
-                test_inputs, test_labels = data[0].to(
-                    self.device, dtype=torch.float), data[1].to(
-                        self.device, dtype=torch.long)
+                test_inputs, test_labels = data[0].to(self.device),\
+                                           data[1].to(self.device)
                 test_outputs = self.model(test_inputs)
                 assert torch.where(test_labels)
                 accuracies += self.accuracy(test_outputs, test_labels)
@@ -246,8 +244,7 @@ def optimizer_setup(
     given hyperparameters.
 
     Why this? torch.optim.Optimizer takes the model's parameters as an
-    argument. Thus we cannot pass an Optimizer to the CNNBase
-    constructor.
+    argument.
 
     Args:
         optimizer_class: optimizer used to train the model
