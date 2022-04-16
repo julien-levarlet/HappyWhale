@@ -5,14 +5,22 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from src.WhaleDataset import WhaleDataset
+from src.transformation import Transformation
 
 class DataManager(object):
     """
     class that yields dataloaders for train, test, and validation data
     """
 
-    def __init__(self, annotations_file : str , dataFolderPath : str, batch_size: int = 1,
-                test_percentage : float = 0.2, val_percentage : float = 0.2, verbose=False, **kwargs):
+    def __init__(self, annotations_file : str , 
+                dataFolderPath : str, 
+                batch_size: int = 1,
+                test_percentage : float = 0.2, 
+                val_percentage : float = 0.2, 
+                transform_proba=0.5,
+                img_size=256,
+                verbose=False, 
+                **kwargs):
         """
         Args:
             annotations_file (str): CSV file with 2 columns :  * 'image' witch contains image name (imgname.jpg)
@@ -21,6 +29,8 @@ class DataManager(object):
             batch_size (int, optional): Batch size. Defaults to 1.
             test_percentage (float, optional): Percentage of images used for test. Defaults to 0.2.
             val_percentage (float, optional): Percentage of images used for validation on all the images that are not used for testing (1- test_percentage). Defaults to 0.2.
+            transform_proba (float, optional): Probability of doing data augmentation. Defaults to 0.5.
+            img_size (int, optional): Size of the images before entering the neural net. Defaults to 256.
             verbose (bool, optional): Display information on datasets. Defaults to False.
         """
         self.batch_size = batch_size
@@ -33,16 +43,8 @@ class DataManager(object):
 
         # permutation
         df_labels.sample(frac=1)
-        #df_labels = df_labels.head(100)
 
         # separation train/test/validation sets
-        val_test_sep = int(df_labels.shape[0] * (1-test_percentage))
-        train_val_sep = int(df_labels.shape[0] * (1-test_percentage) * (1-val_percentage) )
-
-        test_data = df_labels[val_test_sep:]
-        val_data = df_labels[train_val_sep:val_test_sep]
-        train_data = df_labels[:train_val_sep]
-
         df_train_val, df_test = train_test_split(df_labels, test_size=test_percentage, stratify=df_labels["individual_id"])
         df_train, df_val = train_test_split(df_train_val, test_size=val_percentage, stratify=df_train_val["individual_id"])
 
@@ -53,10 +55,13 @@ class DataManager(object):
             print("Size of test set :", len(df_test))
             print("Size of train set :", len(df_train))
 
+        # data augmentation class
+        tranform = Transformation().apply_transformations
+
         # creates Datasets and DataLoaders
-        self.train_set = WhaleDataset(df_train, dataFolderPath)
-        self.val_set = WhaleDataset(df_val, dataFolderPath)
-        self.test_set = WhaleDataset(df_test, dataFolderPath)
+        self.train_set = WhaleDataset(df_train, dataFolderPath, transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.val_set = WhaleDataset(df_val, dataFolderPath, transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.test_set = WhaleDataset(df_test, dataFolderPath,transform_proba=transform_proba, img_size=img_size, transform=tranform)
 
         self.train_loader = DataLoader(self.train_set, batch_size, shuffle=True, **kwargs)
         self.validation_loader = DataLoader(self.val_set, batch_size, shuffle=True, **kwargs)

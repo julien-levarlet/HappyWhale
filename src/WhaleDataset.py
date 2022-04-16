@@ -1,9 +1,10 @@
 import os
-from random import Random
+import random
 import pandas as pd
 import torchvision, torch
 import cv2
 from torch.utils import data
+from src.utils import image_resize
 
 class WhaleDataset(data.Dataset):
     '''
@@ -11,15 +12,15 @@ class WhaleDataset(data.Dataset):
     '''
 
     def __init__(self, dataset : pd.DataFrame,
-                 img_dir, transform=None):
+                 img_dir,img_size=256, transform=None, transform_proba=0.5):
         """
         Args:
             dataset (pd.DataFrame): Dataset, with images name (column 0) and their ids (column 1)
             img_dir (str): Path to the folder containing all the images
             transform (Callable, optional): Function used to do the data augmentation. Defaults to None for no augmentation.
         """
-
-        self.proba = 0.5 # probability of using data augmentation on an image
+        self.img_size = img_size
+        self.proba = transform_proba # probability of using data augmentation on an image
         self.img_df = dataset
         self.img_dir = img_dir
         self.transform = transform
@@ -36,9 +37,8 @@ class WhaleDataset(data.Dataset):
         if image is None:
             raise FileNotFoundError("The image does not exists: image name=",img_path)
 
-        if self.transform and self.p < Random.random():
-            image = self.transform(image)
-        
-        image = torchvision.transforms.functional.to_tensor(image)
+        if self.transform is not None and self.proba < random.random():
+            image = self.transform(image)[1]
+        image = torchvision.transforms.functional.to_tensor(image_resize(image, self.img_size))
         label = torch.tensor(label)
         return image, label
