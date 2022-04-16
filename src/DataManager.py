@@ -22,8 +22,9 @@ class DataManager(object):
         - annotations_file : CSV file with 2 columns :  * 'image' witch contains image name (imgname.jpg)
                                                         * 'individual_id' witch contains the id of the animal
         - dataFolderPath : path to the folder containing all the images
-        - set : dataset searched, train, validation or test
-
+        - batch_size : batch_size
+        - test_percentage : percentage of images used for test
+        - val_percentage : percentage of images used for validation on all the images that are not used for testing (1- test_percentage)
         """
         self.batch_size = batch_size
         self.dataFolderPath = dataFolderPath
@@ -41,6 +42,7 @@ class DataManager(object):
         val_data = df_labels[train_val_sep:val_test_sep]
         train_data = df_labels[train_val_sep:]
 
+        # get torch dataset
         self.train_set = WhaleDataset(train_data)
         self.val_set = WhaleDataset(val_data)
         self.test_set = WhaleDataset(test_data)

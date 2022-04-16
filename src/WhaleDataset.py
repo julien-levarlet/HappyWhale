@@ -4,6 +4,9 @@ from torchvision.io import read_image
 from torch.utils import data
 
 class WhaleDataset(data.Dataset):
+    '''
+    Redefinition of torch.utils.data.dataset for the csv used in the HappyWhale Challenge
+    '''
     def __init__(self, dataset : data.Dataset,
                 transform=None):
         '''
