@@ -40,5 +40,5 @@ class WhaleDataset(data.Dataset):
             image = self.transform(image)
         
         image = torchvision.transforms.functional.to_tensor(image)
-        label = torch.tensor(label)
+        label = torch.tensor(label,dtype=torch.long)
         return image, label
