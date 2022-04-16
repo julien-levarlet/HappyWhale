@@ -1,7 +1,7 @@
 import os
 from random import Random
 import pandas as pd
-import torchvision
+import torchvision, torch
 import cv2
 from torch.utils import data
 
@@ -37,4 +37,5 @@ class WhaleDataset(data.Dataset):
         if self.transform and self.p < Random.random():
             image = self.transform(image)
         image = self.transform_tensor(image)
+        label = torch.tensor(label)
         return image, label

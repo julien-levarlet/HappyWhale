@@ -1,5 +1,3 @@
-from asyncio import DatagramTransport
-from sklearn.metrics import accuracy_score
 import torch
 import numpy as np
 from DataManager import DataManager
@@ -8,6 +6,7 @@ from tqdm import tqdm
 from os.path import join
 import matplotlib.pyplot as plt
 import warnings
+from utils import accuracy
 
 
 class ModelTrainTestManager(object):
@@ -22,7 +21,7 @@ class ModelTrainTestManager(object):
                                               torch.optim.Optimizer]),
                  exp_name:str,
                  accuracy_mesure: (Callable[[torch.Tensor, torch.Tensor], 
-                                            float])=accuracy_score,
+                                            float])=accuracy,
                  learning_rate:float=0.01,
                  use_cuda:bool=False,
                  verbose:bool=True,
@@ -93,9 +92,9 @@ class ModelTrainTestManager(object):
                 train_accuracies = []
                 for i, data in enumerate(train_loader, 0):
                     # transfer tensors to selected device
-                    train_inputs, train_labels = \
-                        data[0].to(self.device, dtype=torch.float),\
-                        data[1]
+                    train_inputs, train_labels = data[0].to(self.device, dtype=torch.float), \
+                                                 data[1].to(self.device, dtype=torch.long)
+                                                 
                     # zero the parameter gradients
                     self.optimizer.zero_grad()
 
@@ -125,9 +124,6 @@ class ModelTrainTestManager(object):
             self.metric_values['train_loss'].append(np.mean(train_losses))
             self.metric_values['train_acc'].append(np.mean(train_accuracies))
             self.evaluate_on_validation_set()
-
-            # save the model to prevent loss on interuption
-            self.model.save_checkpoint(path=self.exp_name, filename=self.model.__class__.__name__ + "_temp.pt", epoch=epoch+1, metric_values=self.metric_values)
 
         print("Finished training.")
 
@@ -181,7 +177,6 @@ class ModelTrainTestManager(object):
         Returns:
             Accuracy of the model
         """
-        # compute the mean of the 3 classes's dice score
         return self.accuracy_mesure(outputs, labels).item()
 
     def evaluate_on_test_set(self):

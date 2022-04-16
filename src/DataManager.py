@@ -30,6 +30,9 @@ class DataManager(object):
         self.dataFolderPath = dataFolderPath
 
         df_labels = pd.read_csv(annotations_file)
+        # labels need to be categorical 
+        df_labels["individual_id"] = df_labels["individual_id"].astype('category').cat.codes
+
         print(df_labels.head())
 
         # permutation
@@ -46,8 +49,8 @@ class DataManager(object):
         self.val_set = WhaleDataset(val_data, dataFolderPath)
         self.test_set = WhaleDataset(test_data, dataFolderPath)
 
-        self.train_loader = DataLoader(self.train_set, batch_size, **kwargs)
-        self.validation_loader = DataLoader(self.val_set, batch_size, **kwargs)
+        self.train_loader = DataLoader(self.train_set, batch_size, shuffle=True, **kwargs)
+        self.validation_loader = DataLoader(self.val_set, batch_size, shuffle=True, **kwargs)
         self.test_loader = DataLoader(self.test_set, batch_size, shuffle=True, **kwargs)
 
 

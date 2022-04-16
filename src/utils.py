@@ -4,6 +4,7 @@ This is used to write fonction that can useful in several part of the project
 from typing import Tuple
 import cv2
 import numpy as np
+import torch
 
 
 def image_resize(img: np.ndarray, dim: int, pad: bool=False)->np.ndarray:
@@ -26,3 +27,17 @@ def image_resize(img: np.ndarray, dim: int, pad: bool=False)->np.ndarray:
         pad_size = [[x_pad], [y_pad], [0]]
         img = np.pad(img, pad_size)
     return cv2.resize(img, (dim,dim))
+
+def accuracy(input: torch.Tensor, target: torch.Tensor)-> float:
+    """Compute the accuracy of the model
+
+    Args:
+        input (torch.Tensor): predicted outputs of the model
+        target (torch.Tensor): targets
+
+    Returns:
+        torch.Tensor: tensor containing the accuracy
+    """
+    preds = torch.argmax(input, dim=-1)
+    return torch.sum(preds == target) / len(target)
+
