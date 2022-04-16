@@ -36,6 +36,7 @@ class WhaleDataset(data.Dataset):
 
         if self.transform and self.p < Random.random():
             image = self.transform(image)
-        image = self.transform_tensor(image)
+        inter = torchvision.transforms.functional.to_tensor(image)
+        image = inter
         label = torch.tensor(label)
         return image, label
