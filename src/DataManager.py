@@ -7,6 +7,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 from torchvision import datasets
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from WhaleDataset import WhaleDataset
 
@@ -37,7 +38,7 @@ class DataManager(object):
 
         # permutation
         df_labels.sample(frac=1)
-        df_labels = df_labels.head(100)
+        #df_labels = df_labels.head(100)
 
         # separation train/test/validation sets
         val_test_sep = int(df_labels.shape[0] * (1-test_percentage))
@@ -46,17 +47,21 @@ class DataManager(object):
         test_data = df_labels[val_test_sep:]
         val_data = df_labels[train_val_sep:val_test_sep]
         train_data = df_labels[:train_val_sep]
+
+        df_train_val, df_test = train_test_split(df_labels, test_size=test_percentage, stratify=df_labels["individual_id"])
+        df_train, df_val = train_test_split(df_train_val, test_size=val_percentage, stratify=df_train_val["individual_id"])
+
         if verbose:
             print(df_labels.head(5))
             print("Dataset size :", len(df_labels))
-            print("Size of validation set :", len(val_data))
-            print("Size of test set :", len(test_data))
-            print("Size of train set :", len(train_data))
+            print("Size of validation set :", len(df_val))
+            print("Size of test set :", len(df_test))
+            print("Size of train set :", len(df_train))
 
         # creates Datasets and DataLoaders
-        self.train_set = WhaleDataset(train_data, dataFolderPath)
-        self.val_set = WhaleDataset(val_data, dataFolderPath)
-        self.test_set = WhaleDataset(test_data, dataFolderPath)
+        self.train_set = WhaleDataset(df_train, dataFolderPath)
+        self.val_set = WhaleDataset(df_val, dataFolderPath)
+        self.test_set = WhaleDataset(df_test, dataFolderPath)
 
         self.train_loader = DataLoader(self.train_set, batch_size, shuffle=True, **kwargs)
         self.validation_loader = DataLoader(self.val_set, batch_size, shuffle=True, **kwargs)
