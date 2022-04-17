@@ -41,9 +41,10 @@ class DataManager(object):
 
         # reads data
         df_labels = pd.read_csv(annotations_file)
-        df_test = pd.read_csv(test_file, sep=',', usecols=['individual_id', 'predictions'], 
-                              dtype={'individual_id' : str, 'predictions' : str})
-
+        df_test = pd.read_csv(test_file, sep=',', usecols=['images', 'predictions'], 
+                              dtype={'image' : str, 'predictions' : str})
+        
+        df_test["individual_id"] = -1
 
         # labels need to be categorical 
         self.encoder = LabelEncoder()
@@ -96,3 +97,6 @@ class DataManager(object):
 
     def get_individual_id(self, class_numbers:np.ndarray):
         return self.encoder.inverse_transform(class_numbers)
+
+    def create_submission(self, model):
+        pass
