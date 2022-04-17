@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import numpy as np
+from sklearn.linear_model import PassiveAggressiveRegressor
 from torch.utils.data import DataLoader
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -40,8 +41,8 @@ class DataManager(object):
         # reads data
         df_labels = pd.read_csv(annotations_file)
         # labels need to be categorical 
-        encoder = LabelEncoder()
-        df_labels['individual_id'] = encoder.fit_transform(df_labels['individual_id'])
+        self.encoder = LabelEncoder()
+        df_labels['individual_id'] = self.encoder.fit_transform(df_labels['individual_id'])
 
         # permutation
         df_labels.sample(frac=1)
@@ -85,3 +86,9 @@ class DataManager(object):
     def get_random_sample_from_test_set(self):
         indice = np.random.randint(0, len(self.test_set))
         return self.test_set[indice]
+
+    def get_number_of_classes(self):
+        return len(self.encoder.classes_)
+
+    def get_individual_id(self, class_numbers:np.ndarray):
+        return self.encoder.inverse_transform(class_numbers)
