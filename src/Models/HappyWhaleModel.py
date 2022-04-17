@@ -15,7 +15,7 @@ class HappyWhaleModel(nn.Module):
         super(HappyWhaleModel, self).__init__()
         self.model = timm.create_model(model_name, pretrained=True)
         in_features = self.model.classifier.in_features
-        print(in_features)
+        #print(in_features)
         self.model.classifier = nn.Identity()
         self.model.global_pool = nn.Identity()
         self.pooling = GeM()

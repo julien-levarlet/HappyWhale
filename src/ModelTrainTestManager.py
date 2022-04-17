@@ -241,7 +241,7 @@ class ModelTrainTestManager(object):
         ax2.set_ylabel('accuracy')
         ax2.legend()
 
-        f.savefig(join(path, 'fig1.png'))
+        #f.savefig(join(path, 'fig1.png'))
         plt.show()
 
     

@@ -12,7 +12,7 @@ import torch
 import math
 
 class ArcMarginProduct(nn.Module):
-    r"""Implement of large margin arc distance: :
+    """Implement of large margin arc distance: :
         Args:
             in_features: size of each input sample
             out_features: size of each output sample
@@ -21,8 +21,10 @@ class ArcMarginProduct(nn.Module):
             cos(theta + m)
         """
     def __init__(self, in_features, out_features, s=10.0, 
-                 m=0.30, easy_margin=False, ls_eps=0.0):
+                 m=0.30, easy_margin=False, ls_eps=0.0, use_cuda=True):
         super(ArcMarginProduct, self).__init__()
+        device_name = 'cuda:0' if use_cuda else 'cpu'
+        self.device = torch.device(device_name)
         self.in_features = in_features
         self.out_features = out_features
         self.s = s
@@ -48,7 +50,7 @@ class ArcMarginProduct(nn.Module):
             phi = torch.where(cosine > self.th, phi, cosine - self.mm)
         # --------------------------- convert label to one-hot ---------------------
         # one_hot = torch.zeros(cosine.size(), requires_grad=True, device='cuda')
-        one_hot = torch.zeros(cosine.size(), device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+        one_hot = torch.zeros(cosine.size(), device=self.device)
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)
         if self.ls_eps > 0:
             one_hot = (1 - self.ls_eps) * one_hot + self.ls_eps / self.out_features
