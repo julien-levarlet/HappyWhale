@@ -83,6 +83,7 @@ class ResNet(nn.Module):
 
         #in_features=size*size*2**(len(depth)+2)
         self.fc = nn.Linear(in_features=int(self.size/(2**(1+depth)))**2*2**(7+depth), out_features=num_classes)
+        self.relu= nn.ReLU(inplace=True)
         
         self.softmax = nn.Softmax(dim=1)
 
