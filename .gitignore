@@ -1,6 +1,7 @@
 # Données à retrouver sur kaggle
 data/*
 **/.gitkeep
+save/*
 
 
 # Byte-compiled / optimized / DLL files

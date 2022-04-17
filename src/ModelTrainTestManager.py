@@ -7,11 +7,11 @@ License:
 Other: Suggestions are welcome
 """
 
+from tabnanny import verbose
 import torch
 import numpy as np
 from typing import Callable, Type
 from tqdm import tqdm
-from os.path import join
 import matplotlib.pyplot as plt
 import warnings
 
@@ -94,7 +94,8 @@ class ModelTrainTestManager(object):
 
         # train num_epochs times
         for epoch in range(start_epoch, num_epochs):
-            print("Epoch: {} of {}".format(epoch + 1, num_epochs))
+            if self.verbose:
+                print("Epoch: {} of {}".format(epoch + 1, num_epochs))
             train_loss = 0.0
 
             with tqdm(range(len(train_loader))) as t:
@@ -166,7 +167,6 @@ class ModelTrainTestManager(object):
                 validation_accuracies.append(
                     self.accuracy(val_outputs, val_labels))
                 validation_loss += loss.item()
-
         self.metric_values['val_loss'].append(np.mean(validation_losses))
         self.metric_values['val_acc'].append(np.mean(validation_accuracies))
 
@@ -186,7 +186,7 @@ class ModelTrainTestManager(object):
         Returns:
             Accuracy of the model
         """
-        return self.accuracy_mesure(outputs, labels).item()
+        return self.accuracy_mesure(outputs, labels)
 
     def evaluate_on_test_set(self):
         """

@@ -8,9 +8,10 @@ import torch.nn as nn
 import torch
 import timm
 
+from src.Models.BaseModel import BaseModel
 from src.Models.ArcFaceMarginProduct import ArcMarginProduct
 
-class HappyWhaleModel(nn.Module):
+class HappyWhaleModel(BaseModel):
     def __init__(self, model_name, embedding_size, num_class, arcface_config):
         super(HappyWhaleModel, self).__init__()
         self.model = timm.create_model(model_name, pretrained=True)
