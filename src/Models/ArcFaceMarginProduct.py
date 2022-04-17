@@ -58,4 +58,4 @@ class ArcMarginProduct(nn.Module):
         output = (one_hot * phi) + ((1.0 - one_hot) * cosine)
         output *= self.s
 
-        return output
+        return torch.mul(output, -1)

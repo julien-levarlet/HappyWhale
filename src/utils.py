@@ -54,6 +54,7 @@ def accuracy(input: torch.Tensor, target: torch.Tensor)-> float:
     Returns:
         torch.Tensor: tensor containing the accuracy
     """
+    #print("INPUT ACCURACY = ",input)
     predicted = input.argmax(dim=1)
     #print("predicted =", predicted)
     #print("target =", target)
