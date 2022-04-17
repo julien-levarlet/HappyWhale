@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+import torch
 
 from src.WhaleDataset import WhaleDataset
 from src.transformation import Transformation
@@ -18,7 +19,6 @@ class DataManager(object):
                 test_file : str, 
                 dataFolderPath : str, 
                 batch_size: int = 1,
-                test_percentage : float = 0.2, 
                 val_percentage : float = 0.2, 
                 transform_proba=0.8,
                 img_size=256,
@@ -41,9 +41,9 @@ class DataManager(object):
 
         # reads data
         df_labels = pd.read_csv(annotations_file)
-        df_test = pd.read_csv(test_file)
+        self.df_test = pd.read_csv(test_file)
         
-        df_test["individual_id"] = -1
+        self.df_test["individual_id"] = -1
 
         # labels need to be categorical 
         self.encoder = LabelEncoder()
@@ -53,13 +53,13 @@ class DataManager(object):
         df_labels.sample(frac=1)
 
         # separation train/test/validation sets
-        df_train, df_val = train_test_split(df_labels, test_size=val_percentage, stratify=df_labels["individual_id"])
+        df_train, df_val = train_test_split(df_labels, test_size=val_percentage)
 
         if verbose:
             print(df_labels.head(5))
             print("Dataset size :", len(df_labels))
             print("Size of validation set :", len(df_val))
-            print("Size of test set :", len(df_test))
+            print("Size of test set :", len(self.df_test))
             print("Size of train set :", len(df_train))
 
         # data augmentation class
@@ -68,7 +68,7 @@ class DataManager(object):
         # creates Datasets and DataLoaders
         self.train_set = WhaleDataset(df_train, dataFolderPath + "train_images", transform_proba=transform_proba, img_size=img_size, transform=tranform)
         self.val_set = WhaleDataset(df_val, dataFolderPath + "train_images", transform_proba=transform_proba, img_size=img_size, transform=tranform)
-        self.test_set = WhaleDataset(df_test, dataFolderPath + "test_images",transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.test_set = WhaleDataset(self.df_test, dataFolderPath + "test_images",transform_proba=transform_proba, img_size=img_size, transform=tranform)
 
         self.train_loader = DataLoader(self.train_set, batch_size, num_workers=4, shuffle=True, **kwargs)
         self.validation_loader = DataLoader(self.val_set, batch_size, num_workers=4, shuffle=True, **kwargs)
@@ -98,4 +98,15 @@ class DataManager(object):
         return self.encoder.inverse_transform(class_numbers)
 
     def create_submission(self, model):
-        pass
+        test_loader = self.get_test_set()
+        self.df_test.drop("")
+        with torch.no_grad():
+            for i,data in enumerate(test_loader,0):
+                test_inputs = data[0].to(self.device, dtype=torch.float)
+                test_outputs = self.model.predict(test_inputs)
+                print(test_outputs)
+                predictions = test_outputs.detach().cpu().numpy()
+                for pred in predictions:
+                    ids = self.get_individual_id(pred)
+                    self.df_test["individual_id"].iloc[i] = "\n".join(ids)
+        self.df_test.to_csv("/kaggle/working/submission.csv")
