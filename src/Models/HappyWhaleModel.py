@@ -19,6 +19,7 @@ class HappyWhaleModel(BaseModel):
         #print(in_features)
         self.model.classifier = nn.Identity()
         self.model.global_pool = nn.Identity()
+        """
         self.pooling = GeM()
         self.embedding = nn.Linear(in_features, embedding_size)
         self.fc = ArcMarginProduct(embedding_size, 
@@ -27,13 +28,23 @@ class HappyWhaleModel(BaseModel):
                                    m=arcface_config["m"], 
                                    easy_margin=arcface_config["easy_margin"], 
                                    ls_eps=arcface_config["ls_eps"])
+        """
+        #pour adapter ici, c'est le 8 qui depend de la taille des images (256->8)
+        self.fc = nn.Linear(in_features=1280*8*8, out_features=num_class)
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, images, labels):
         features = self.model(images)
+        out=features.flatten(start_dim=1)
+        out = self.fc(out)
+        out=self.softmax(out)
+        #print(features.shape)
+        """
         pooled_features = self.pooling(features).flatten(1)
         embedding = self.embedding(pooled_features)
         output = self.fc(embedding, labels)
-        return output
+        """
+        return out
     
     def extract(self, images):
         features = self.model(images)
