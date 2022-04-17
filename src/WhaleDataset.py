@@ -24,13 +24,16 @@ class WhaleDataset(data.Dataset):
         self.img_df = dataset
         self.img_dir = img_dir
         self.transform = transform
+        self.individual_column = self.img_df.columns.get_loc("individual_id")
+        self.img_column = self.img_df.columns.get_loc("image")
+        print(self.individual_column, self.img_column)
 
     def __len__(self):
         return len(self.img_df)
 
     def __getitem__(self, idx):
-        img = self.img_df.iat[idx,0]
-        label = self.img_df.iat[idx,2]
+        img = self.img_df.iat[idx,self.img_column]
+        label = self.img_df.iat[idx,self.individual_column]
 
         img_path = os.path.join(self.img_dir, img)
         image = image_resize(cv2.imread(img_path), self.img_size)
