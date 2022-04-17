@@ -41,7 +41,7 @@ class DataManager(object):
 
         # reads data
         df_labels = pd.read_csv(annotations_file)
-        df_test = pd.read_csv(test_file, sep=',', usecols=['images', 'predictions'], 
+        df_test = pd.read_csv(test_file, sep=',', usecols=['image', 'predictions'], 
                               dtype={'image' : str, 'predictions' : str})
         
         df_test["individual_id"] = -1
