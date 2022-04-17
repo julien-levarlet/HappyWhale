@@ -30,7 +30,7 @@ class WhaleDataset(data.Dataset):
 
     def __getitem__(self, idx):
         img = self.img_df.iat[idx,0]
-        label = self.img_df.iat[idx,1]
+        label = self.img_df.iat[idx,2]
 
         img_path = os.path.join(self.img_dir, img)
         image = image_resize(cv2.imread(img_path), self.img_size)

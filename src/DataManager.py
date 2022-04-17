@@ -48,8 +48,8 @@ class DataManager(object):
         df_labels.sample(frac=1)
 
         # separation train/test/validation sets
-        df_train_val, df_test = train_test_split(df_labels, test_size=test_percentage, stratify=df_labels["individual_id"])
-        df_train, df_val = train_test_split(df_train_val, test_size=val_percentage, stratify=df_train_val["individual_id"])
+        df_train_val, df_test = train_test_split(df_labels, test_size=test_percentage, stratify=None)
+        df_train, df_val = train_test_split(df_train_val, test_size=val_percentage, stratify=None)
 
         if verbose:
             print(df_labels.head(5))
