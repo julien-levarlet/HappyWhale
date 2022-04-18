@@ -66,9 +66,9 @@ class DataManager(object):
         tranform = Transformation(image_size=(img_size, img_size)).apply_transformations
 
         # creates Datasets and DataLoaders
-        self.train_set = WhaleDataset(df_train, dataFolderPath + "/cropped_test_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
-        self.val_set = WhaleDataset(df_val, dataFolderPath + "/cropped_train_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
-        self.test_set = WhaleDataset(self.df_test, dataFolderPath + "test_images",transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.train_set = WhaleDataset(df_train, dataFolderPath + "./cropped_train_images/cropped_train_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.val_set = WhaleDataset(df_val, dataFolderPath + "/cropped_train_images/cropped_train_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.test_set = WhaleDataset(self.df_test, dataFolderPath + "/cropped_test_images/cropped_test_images/",transform_proba=transform_proba, img_size=img_size, transform=tranform)
 
         self.train_loader = DataLoader(self.train_set, batch_size, num_workers=4, shuffle=True, **kwargs)
         self.validation_loader = DataLoader(self.val_set, batch_size, num_workers=4, shuffle=True, **kwargs)
