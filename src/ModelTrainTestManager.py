@@ -275,7 +275,6 @@ class ModelTrainTestManager(object):
             top5_lbl_newId = np.concatenate((top5_label_ids[:index_below_threshold], ['new_individual'], top5_label_ids[index_below_threshold:]))
 
             top5_lbl_newId= top5_lbl_newId[: min(5, len(top5_lbl_newId))]
-            print(top5_lbl_newId)
 
 
             self.data_manager.get_test_set()["predictions"].iloc[i] = " ".join(top5_lbl_newId)
