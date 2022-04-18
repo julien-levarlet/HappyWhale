@@ -39,9 +39,11 @@ class WhaleDataset(data.Dataset):
         # reads the image on row idx
         img = self.img_df.iat[idx,self.img_column]
         img_path = os.path.join(self.img_dir, img)
-        image = image_resize(cv2.imread(img_path), self.img_size)
+        cv2.imread(img_path)
         if image is None:
             raise FileNotFoundError("The image does not exists: image name=",img_path)
+            
+        image = image_resize(img_path, self.img_size)
 
         if self.transform is not None and self.proba < random.random(): # apply data augmentation with a given probability
             image = self.transform(image)[1]
