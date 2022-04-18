@@ -43,7 +43,7 @@ class WhaleDataset(data.Dataset):
         if image is None:
             raise FileNotFoundError("The image does not exists: image name=",img_path)
 
-        image = image_resize(img_path, self.img_size)
+        image = image_resize(image, self.img_size)
 
         if self.transform is not None and self.proba < random.random(): # apply data augmentation with a given probability
             image = self.transform(image)[1]
