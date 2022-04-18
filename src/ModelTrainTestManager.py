@@ -280,7 +280,7 @@ class ModelTrainTestManager(object):
             self.data_manager.get_test_set()["predictions"].iloc[i] = " ".join(top5_lbl_newId)
     
     def saveTest(self, test_file):
-        self.data_manager.get_test_set().to_csv(path_or_buf=test_file, columns=["image", "predictions"])
+        self.data_manager.get_test_set().to_csv(path_or_buf=test_file, columns=["image", "predictions"], index=False)
 
 
     def plot_metrics(self, path):
