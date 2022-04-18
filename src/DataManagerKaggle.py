@@ -53,21 +53,21 @@ class DataManager(object):
         df_labels.sample(frac=1)
 
         # separation train/test/validation sets
-        df_train, df_val = train_test_split(df_labels, test_size=val_percentage)
+        self.df_train, self.df_val = train_test_split(df_labels, test_size=val_percentage)
 
         if verbose:
             print(df_labels.head(5))
             print("Dataset size :", len(df_labels))
-            print("Size of validation set :", len(df_val))
+            print("Size of validation set :", len(self.df_val))
             print("Size of test set :", len(self.df_test))
-            print("Size of train set :", len(df_train))
+            print("Size of train set :", len(self.df_train))
 
         # data augmentation class
         tranform = Transformation(image_size=(img_size, img_size)).apply_transformations
 
         # creates Datasets and DataLoaders
-        self.train_set = WhaleDataset(df_train, dataFolderPath + "/cropped_train_images/cropped_train_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
-        self.val_set = WhaleDataset(df_val, dataFolderPath + "/cropped_train_images/cropped_train_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.train_set = WhaleDataset(self.df_train, dataFolderPath + "/cropped_train_images/cropped_train_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
+        self.val_set = WhaleDataset(self.df_val, dataFolderPath + "/cropped_train_images/cropped_train_images/", transform_proba=transform_proba, img_size=img_size, transform=tranform)
         self.test_set = WhaleDataset(self.df_test, dataFolderPath + "/cropped_test_images/cropped_test_images/",transform_proba=transform_proba, img_size=img_size, transform=tranform)
 
         self.train_loader = DataLoader(self.train_set, batch_size, num_workers=4, shuffle=True, **kwargs)
