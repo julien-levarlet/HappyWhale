@@ -51,4 +51,4 @@ class WhaleDataset(data.Dataset):
             label = self.img_df.iat[idx,self.individual_column]
             label = torch.tensor(label,dtype=torch.long)
             return image, label
-        return image # on test we give only the image
+        return image, torch.tensor(0,dtype=torch.long) # on test we give only the image

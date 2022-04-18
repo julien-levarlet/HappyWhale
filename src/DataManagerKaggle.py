@@ -76,12 +76,21 @@ class DataManager(object):
 
 
     def get_train_set(self):
-        return self.train_loader
+        return self.df_train
 
     def get_validation_set(self):
+        return self.df_val
+    
+    def get_test_set(self):
+        return self.df_test
+
+    def get_train_loader(self):
+        return self.train_loader
+
+    def get_validation_loader(self):
         return self.validation_loader
 
-    def get_test_set(self):
+    def get_test_loader(self):
         return self.test_loader
 
     def get_batch_size(self):
@@ -96,17 +105,3 @@ class DataManager(object):
 
     def get_individual_id(self, class_numbers:np.ndarray):
         return self.encoder.inverse_transform(class_numbers)
-
-    def create_submission(self, model):
-        test_loader = self.get_test_set()
-        self.df_test.drop("")
-        with torch.no_grad():
-            for i,data in enumerate(test_loader,0):
-                test_inputs = data[0].to(self.device, dtype=torch.float)
-                test_outputs = self.model.predict(test_inputs)
-                print(test_outputs)
-                predictions = test_outputs.detach().cpu().numpy()
-                for pred in predictions:
-                    ids = self.get_individual_id(pred)
-                    self.df_test["individual_id"].iloc[i] = "\n".join(ids)
-        self.df_test.to_csv("/kaggle/working/submission.csv")

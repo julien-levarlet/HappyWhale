@@ -8,6 +8,9 @@ Other: Suggestions are welcome
 """
 
 from tabnanny import verbose
+from turtle import distance
+from cv2 import threshold
+from sklearn.neighbors import NearestNeighbors
 import torch
 import numpy as np
 from typing import Callable, Type
@@ -70,6 +73,10 @@ class ModelTrainTestManager(object):
         self.exp_name = exp_name
         self.verbose = verbose
         self.accuracy_mesure = accuracy_mesure
+        batch_size = data_manager.get_train_loader().batch_size
+        self.train_embeddings = np.zeros((len(data_manager.get_train_loader()) * batch_size, model.embedding_size))
+        self.val_embeddings = np.zeros((len(data_manager.get_validation_loader()) * batch_size, model.embedding_size))
+        self.test_embeddings = np.zeros((len(data_manager.get_test_loader()) * batch_size, model.embedding_size))
 
     def train(self, num_epochs:int, start_epoch:int=0, metric_values:dict=None):
         """Train the model for a given number of epochs
@@ -90,7 +97,7 @@ class ModelTrainTestManager(object):
             self.metric_values['val_acc'] = []
 
         # Create pytorch's train data_loader
-        train_loader = self.data_manager.get_train_set()
+        train_loader = self.data_manager.get_train_loader()
 
         # train num_epochs times
         for epoch in range(start_epoch, num_epochs):
@@ -110,7 +117,7 @@ class ModelTrainTestManager(object):
                     self.optimizer.zero_grad()
 
                     # forward pass
-                    train_outputs = self.model(train_inputs, train_labels)
+                    train_outputs, emb = self.model(train_inputs, train_labels)
                     # computes loss using loss function loss_fn
                     loss = self.loss_fn(train_outputs, train_labels)
                     # for croosentropy loss softmax and argmax not needed :
@@ -131,6 +138,10 @@ class ModelTrainTestManager(object):
                     train_loss += loss.item()
                     t.set_postfix(loss='{:05.3f}'.format(train_loss / (i + 1)))
                     t.update()
+
+                    # saving the embedding
+                    self.train_embeddings[i:i+emb.size(0),:] = emb.detach().cpu().numpy()
+
             # evaluate the model on validation data after each epoch
             self.metric_values['train_loss'].append(np.mean(train_losses))
             self.metric_values['train_acc'].append(np.mean(train_accuracies))
@@ -138,6 +149,7 @@ class ModelTrainTestManager(object):
 
         print("Finished training.")
 
+    
     def evaluate_on_validation_set(self):
         """
         function that evaluate the model on the validation set every epoch
@@ -147,7 +159,7 @@ class ModelTrainTestManager(object):
         self.model.eval()
 
         # Get validation data
-        val_loader = self.data_manager.get_validation_set()
+        val_loader = self.data_manager.get_validation_loader()
         validation_loss = 0.0
         validation_losses = []
         validation_accuracies = []
@@ -159,21 +171,24 @@ class ModelTrainTestManager(object):
                                          val_data[1].to(self.device, dtype=torch.long)
 
                 # forward pass
-                val_outputs = self.model(val_inputs,torch.tensor([0,0,0,0,0], device="cuda:0"))
+                val_outputs, emb = self.model(val_inputs,val_labels)
 
                 # compute loss function
-                #print(val_outputs)
                 loss = self.loss_fn(val_outputs, val_labels)
                 validation_losses.append(loss.item())
                 validation_accuracies.append(
                     self.accuracy(val_outputs, val_labels))
                 validation_loss += loss.item()
+
+                # save the embeddings
+                self.val_embeddings[j:j+emb.size(0),:] = emb.detach().cpu().numpy()
+
         self.metric_values['val_loss'].append(np.mean(validation_losses))
         self.metric_values['val_acc'].append(np.mean(validation_accuracies))
 
         # displays metrics
         if self.verbose:
-            print('Validation loss %.3f' % (validation_loss / len(val_loader)))
+            print('Validation loss %.3f' % (validation_loss / len(val_loader) *100 ))
 
         # switch back to train mode
         self.model.train()
@@ -201,11 +216,73 @@ class ModelTrainTestManager(object):
             for data in test_loader:
                 test_inputs, test_labels = data[0].to(self.device, dtype=torch.float), \
                                            data[1].to(self.device, dtype=torch.long)
-                test_outputs = self.model(test_inputs,torch.tensor([0,0,0,0,0],device="cuda:0"))
+                test_outputs = self.model(test_inputs,test_labels)
                 assert torch.where(test_labels)
                 accuracies += self.accuracy(test_outputs, test_labels)
         print("Accuracy on the test set: {:05.3f} %".format(
             accuracies / len(test_loader)))
+
+    def get_embeddings_on_test_set(self):
+
+        test_loader = self.data_manager.get_test_loader()
+        accuracies = 0
+        with torch.no_grad():
+            for j,data in enumerate(test_loader,0):
+                test_inputs, test_labels = data[0].to(self.device, dtype=torch.float), \
+                                           data[1].to(self.device, dtype=torch.long)
+                test_outputs, emb = self.model(test_inputs,test_labels)
+                assert torch.where(test_labels)
+                accuracies += self.accuracy(test_outputs, test_labels)
+                self.test_embeddings[j:j+emb.size(0),:] = emb.detach().cpu().numpy()
+
+    def inference_for_test_set(self, threshold=0.7):
+        known_embeddings = np.concatenate((self.train_embeddings, self.val_embeddings))
+        known_labels = np.concatenate((self.data_manager.get_train_set()["individual_id"].to_numpy(), self.data_manager.get_train_set()["individual_id"].to_numpy()))
+        # use nearest neighbors to determine the labels in test set 
+        nn = NearestNeighbors(n_neighbors=100, metric="cosine")
+        nn.fit(known_embeddings)
+        distances,idxs = nn.kneighbors(self.test_embeddings, return_distance=True)
+        conf = 1-distances # we have to maximize conf to get the more plausible labels
+
+        # pour chaque test
+        for i in range(len(self.data_manager.get_test_set())):
+            '''
+            print("conf ",i,"eme image test: ", conf[i,:])
+            sorted_index = np.argsort(-conf[i, :])
+            print("sorted_index: ", sorted_index)
+            sorted_array = conf[i,:][sorted_index] # sort the array for test_embedding i
+            print("sorted_array: ", sorted_array)'''
+
+            # conf est déjà trié
+            sorted_array = conf[i,:]
+
+            #train_indexes = idxs[i, sorted_index]
+            train_indexes = idxs[i]
+            sorted_labels = known_labels[train_indexes]
+
+            indexes = np.unique(sorted_labels, return_index=True)[1]
+            sorted_index = np.sort(indexes)
+
+            top5_indexes = sorted_index[: min(5, len(sorted_index))] # top5 (or less if there is too many duplicates)
+            top5_conf = sorted_array[top5_indexes]
+            top5_labels = sorted_labels[top5_indexes]
+
+            top5_conf = np.concatenate((top5_conf, [-1]))
+            index_below_threshold = np.argmax(top5_conf < threshold)
+
+            top5_label_ids = self.data_manager.get_individual_id(top5_labels)
+
+            top5_lbl_newId = np.concatenate((top5_label_ids[:index_below_threshold], ['new_individual'], top5_label_ids[index_below_threshold:]))
+
+            top5_lbl_newId= top5_lbl_newId[: min(5, len(top5_lbl_newId))]
+            print(top5_lbl_newId)
+
+
+            self.data_manager.get_test_set()["predictions"].iloc[i] = " ".join(top5_lbl_newId)
+    
+    def saveTest(self, test_file):
+        self.data_manager.get_test_set().to_csv(path_or_buf=test_file)
+
 
     def plot_metrics(self, path):
         """
@@ -245,7 +322,6 @@ class ModelTrainTestManager(object):
         #f.savefig(join(path, 'fig1.png'))
         plt.show()
 
-    
 def optimizer_setup(
         optimizer_class: Type[torch.optim.Optimizer],
         **hyperparameters
