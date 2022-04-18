@@ -14,37 +14,27 @@ from src.Models.ArcFaceMarginProduct import ArcMarginProduct
 class HappyWhaleModel(BaseModel):
     def __init__(self, model_name, embedding_size, num_class, arcface_config):
         super(HappyWhaleModel, self).__init__()
+        self.embedding_size = embedding_size
         self.model = timm.create_model(model_name, pretrained=True)
         in_features = self.model.classifier.in_features
         #print(in_features)
         self.model.classifier = nn.Identity()
         self.model.global_pool = nn.Identity()
-        """
         self.pooling = GeM()
-        self.embedding = nn.Linear(in_features, embedding_size)
-        self.fc = ArcMarginProduct(embedding_size, 
+        self.embedding = nn.Linear(in_features, self.embedding_size)
+        self.fc = ArcMarginProduct(self.embedding_size, 
                                    num_class,
                                    s=arcface_config["s"], 
                                    m=arcface_config["m"], 
                                    easy_margin=arcface_config["easy_margin"], 
                                    ls_eps=arcface_config["ls_eps"])
-        """
-        #pour adapter ici, c'est le 8 qui depend de la taille des images (256->8)
-        self.fc = nn.Linear(in_features=1280*8*8, out_features=num_class)
-        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, images, labels):
         features = self.model(images)
-        out=features.flatten(start_dim=1)
-        out = self.fc(out)
-        out=self.softmax(out)
-        #print(features.shape)
-        """
         pooled_features = self.pooling(features).flatten(1)
         embedding = self.embedding(pooled_features)
         output = self.fc(embedding, labels)
-        """
-        return out
+        return output,embedding
     
     def extract(self, images):
         features = self.model(images)
