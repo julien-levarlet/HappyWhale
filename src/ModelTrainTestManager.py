@@ -7,9 +7,6 @@ License:
 Other: Suggestions are welcome
 """
 
-from tabnanny import verbose
-from turtle import distance
-from cv2 import threshold
 from sklearn.neighbors import NearestNeighbors
 import torch
 import numpy as np
@@ -223,7 +220,7 @@ class ModelTrainTestManager(object):
             accuracies / len(test_loader)))
 
     def get_embeddings_on_test_set(self):
-
+        """Function used to get the embeddings on the test set for inference on this set"""
         test_loader = self.data_manager.get_test_loader()
         accuracies = 0
         with torch.no_grad():
@@ -236,6 +233,12 @@ class ModelTrainTestManager(object):
                 self.test_embeddings[j:j+emb.size(0),:] = emb.detach().cpu().numpy()
 
     def inference_for_test_set(self, threshold=0.7):
+        """Function used for inference with ArcFace based model, 
+        write top5 predictions in the df_test dataframe
+
+        Args:
+            threshold (float, optional): new individual confidence threshold. Defaults to 0.7.
+        """
         known_embeddings = np.concatenate((self.train_embeddings, self.val_embeddings))
         known_labels = np.concatenate((self.data_manager.get_train_set()["individual_id"].to_numpy(), self.data_manager.get_train_set()["individual_id"].to_numpy()))
         # use nearest neighbors to determine the labels in test set 
@@ -280,6 +283,11 @@ class ModelTrainTestManager(object):
             self.data_manager.get_test_set()["predictions"].iloc[i] = " ".join(top5_lbl_newId)
     
     def saveTest(self, test_file):
+        """Write infered prediction a csv file
+
+        Args:
+            test_file (str): path where the csv will be saved
+        """
         self.data_manager.get_test_set().to_csv(path_or_buf=test_file, columns=["image", "predictions"], index=False)
 
 

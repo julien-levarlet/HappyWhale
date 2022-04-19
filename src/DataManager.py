@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 import numpy as np
-from sklearn.linear_model import PassiveAggressiveRegressor
 from torch.utils.data import DataLoader
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -91,4 +90,12 @@ class DataManager(object):
         return len(self.encoder.classes_)
 
     def get_individual_id(self, class_numbers:np.ndarray):
+        """Transform number labels to individual ids
+
+        Args:
+            class_numbers (np.ndarray): the array of number labels
+
+        Returns:
+            np.ndarray: the array of individual ids
+        """
         return self.encoder.inverse_transform(class_numbers)

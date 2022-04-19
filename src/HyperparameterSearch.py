@@ -1,12 +1,14 @@
 from typing import Callable
 import torch
-import torch.nn as nn
 from src.ModelTrainTestManager import ModelTrainTestManager
 from src.DataManager import DataManager
 from src.Models.HappyWhaleModel import HappyWhaleModel
 from src.utils import accuracy
 
 class HyperparameterSearchManager():
+    """
+    This class allows to do an hyperparameter search, to find the best model on the validation set
+    """
 
     def __init__(self, model_class, 
                 data_manager:DataManager, 
@@ -19,7 +21,17 @@ class HyperparameterSearchManager():
                                             float])=accuracy,
                 num_epoch=3,
         ) -> None:
-        
+        """
+        Args:
+            model_class : The model we want to train
+            data_manager (DataManager):  The data manager that contains the train and validation sets for the hyperparameter search
+            params (dict): Values of learning rate, scale and margin to iterate for the search
+            loss_fn (torch.nn.Module): The loss used
+            optimizer_factory (Callable[[torch.nn.Module], torch.optim.Optimizer]): A callable to create the optimizer
+            exp_name (str): Experiment name, define in which directory the model will be stored
+            accuracy_mesure (Callable[[torch.Tensor, torch.Tensor], float], optional): Specify the accuracy mesure to use. Defaults to accuracy.
+            num_epoch (int, optional): Number of epochs for each training. Defaults to 3.
+        """        
         
         self.model_class = model_class
         self.best_model_trainer = None
@@ -56,6 +68,9 @@ class HyperparameterSearchManager():
                         }
                     
     def evaluate_best_on_test_set(self):
+        """
+        Function used to evaluate the best model after the search
+        """
         self.best_model_trainer.evaluate_on_test_set()
         self.best_model_trainer.plot_metrics(self.exp_name)
 

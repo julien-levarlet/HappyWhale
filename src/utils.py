@@ -1,7 +1,6 @@
 """
 This is used to write fonction that can useful in several part of the project
 """
-from typing import Tuple
 import cv2
 import numpy as np
 import torch

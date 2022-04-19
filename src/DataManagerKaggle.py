@@ -1,18 +1,16 @@
 # -*- coding:utf-8 -*-
 import numpy as np
-from sklearn.linear_model import PassiveAggressiveRegressor
 from torch.utils.data import DataLoader
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-import torch
 
 from src.WhaleDataset import WhaleDataset
 from src.transformation import Transformation
 
 class DataManager(object):
     """
-    class that yields dataloaders for train, test, and validation data
+    class that yields dataloaders for train, test, and validation data, used for submission data on Kaggle
     """
 
     def __init__(self, annotations_file : str ,
@@ -28,11 +26,11 @@ class DataManager(object):
         Args:
             annotations_file (str): CSV file with 2 columns :  * 'image' witch contains image name (imgname.jpg)
                                                         * 'individual_id' witch contains the id of the animal
-            dataFolderPath (str): Path to the folder containing all the images
+            test_file (str): CSV file with 2 columns : contains default values of submission file on kaggle
+            dataFolderPath (str): Path to the folder containing both training and testing folder
             batch_size (int, optional): Batch size. Defaults to 1.
-            test_percentage (float, optional): Percentage of images used for test. Defaults to 0.2.
-            val_percentage (float, optional): Percentage of images used for validation on all the images that are not used for testing (1- test_percentage). Defaults to 0.2.
-            transform_proba (float, optional): Probability of doing data augmentation. Defaults to 0.5.
+            val_percentage (float, optional): Percentage of images used for validation. Defaults to 0.2.
+            transform_proba (float, optional): Probability of doing data augmentation. Defaults to 0.8.
             img_size (int, optional): Size of the images before entering the neural net. Defaults to 256.
             verbose (bool, optional): Display information on datasets. Defaults to False.
         """
@@ -44,6 +42,7 @@ class DataManager(object):
         self.df_test = pd.read_csv(test_file)
         
         self.df_test["individual_id"] = -1
+        
 
         # labels need to be categorical 
         self.encoder = LabelEncoder()
@@ -104,4 +103,12 @@ class DataManager(object):
         return len(self.encoder.classes_)
 
     def get_individual_id(self, class_numbers:np.ndarray):
+        """Transform number labels to individual ids
+
+        Args:
+            class_numbers (np.ndarray): the array of number labels
+
+        Returns:
+            np.ndarray: the array of individual ids
+        """
         return self.encoder.inverse_transform(class_numbers)

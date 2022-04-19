@@ -12,7 +12,17 @@ from src.Models.BaseModel import BaseModel
 from src.Models.ArcFaceMarginProduct import ArcMarginProduct
 
 class HappyWhaleModel(BaseModel):
+    """
+    This model implements the ArcFace architecture
+    """
     def __init__(self, model_name, embedding_size, num_class, arcface_config):
+        """
+        Args:
+            model_name (str): timm model nale that will be the backend
+            embedding_size (int): size of the embedding, before ArcFace layer
+            num_class (int): number of classes of the output of ArcFace
+            arcface_config (dict): s, m, easy_margin and ls_eps values for the ArcFace layer
+        """
         super(HappyWhaleModel, self).__init__()
         self.embedding_size = embedding_size
         self.model = timm.create_model(model_name, pretrained=True)
@@ -35,14 +45,11 @@ class HappyWhaleModel(BaseModel):
         embedding = self.embedding(pooled_features)
         output = self.fc(embedding, labels)
         return output,embedding
-    
-    def extract(self, images):
-        features = self.model(images)
-        pooled_features = self.pooling(features).flatten(1)
-        embedding = self.embedding(pooled_features)
-        return embedding
 
 class GeM(nn.Module):
+    """
+    A GeM pooling layer used to make the embedding for ArcFace
+    """
     def __init__(self, p=3, eps=1e-6):
         super(GeM, self).__init__()
         self.p = nn.Parameter(torch.ones(1)*p)

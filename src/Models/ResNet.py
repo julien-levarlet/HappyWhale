@@ -22,7 +22,7 @@ class ResNet(nn.Module):
         size = taille des images pour le calcul de la couche dense apres le flatten
         """
         super(ResNet, self).__init__()
-        self.size=size
+        self.size=size//2
         self.depth=depth
         self.num_classes = num_classes
         self.in_channels = in_channels

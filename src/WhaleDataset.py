@@ -17,7 +17,9 @@ class WhaleDataset(data.Dataset):
         Args:
             dataset (pd.DataFrame): Dataset, with images name (column 0) and their ids (column 1)
             img_dir (str): Path to the folder containing all the images
+            img_size (int): Size of the tensors images
             transform (Callable, optional): Function used to do the data augmentation. Defaults to None for no augmentation.
+            transform_proba (float): probability of data augmentation, sould be between 0 and 1. Default to 0.5.
         """
         self.img_size = img_size
         self.proba = transform_proba # probability of using data augmentation on an image
