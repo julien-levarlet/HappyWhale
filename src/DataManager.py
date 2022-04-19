@@ -78,6 +78,15 @@ class DataManager(object):
 
     def get_test_set(self):
         return self.test_loader
+    
+    def get_train_loader(self):
+        return self.train_loader
+
+    def get_validation_loader(self):
+        return self.validation_loader
+
+    def get_test_loader(self):
+        return self.test_loader
 
     def get_batch_size(self):
         return self.batch_size
