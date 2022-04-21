@@ -140,8 +140,8 @@ class Transformation():
         ''' option = 1 pour renverser horizontalement, 0 pour verticalement '''
         #gestion des modes
         if(mode=="random"):
-            option=random.randint(0,1)
-            if(option==2):
+            option=random.randint(1,2)
+            if(option==2 or option==3):
                 if(prediction.shape!=np.zeros(shape=1).shape):
                     return image,prediction
                 return image
